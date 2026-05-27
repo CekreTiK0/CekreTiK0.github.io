@@ -204,116 +204,42 @@
         .nickname-change-info .can-change { color: #4CAF50; }
         .nickname-change-info .cannot-change { color: #f44336; }
 
-        .code-input-group {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            margin: 25px 0;
-        }
+        .code-input-group { display: flex; gap: 12px; justify-content: center; margin: 25px 0; }
 
         .code-input {
-            width: 55px !important;
-            height: 65px !important;
-            text-align: center;
-            font-size: 1.8rem !important;
-            font-weight: 700;
-            border-radius: 15px !important;
-            border: 2px solid var(--border-color) !important;
-            background: var(--input-bg) !important;
-            color: var(--text-primary) !important;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            font-family: 'Courier New', monospace;
-            letter-spacing: 2px;
+            width: 55px !important; height: 65px !important; text-align: center;
+            font-size: 1.8rem !important; font-weight: 700;
+            border-radius: 15px !important; border: 2px solid var(--border-color) !important;
+            background: var(--input-bg) !important; color: var(--text-primary) !important;
+            transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            font-family: 'Courier New', monospace; letter-spacing: 2px;
         }
 
         .code-input:focus {
             border-color: #ffffff !important;
             box-shadow: 0 0 20px rgba(255, 255, 255, 0.3), 0 4px 15px rgba(0, 0, 0, 0.2) !important;
-            transform: scale(1.05);
-            background: rgba(255, 255, 255, 0.15) !important;
+            transform: scale(1.05); background: rgba(255, 255, 255, 0.15) !important;
         }
 
-        .code-input.filled {
-            border-color: #4CAF50 !important;
-            box-shadow: 0 0 15px rgba(76, 175, 80, 0.3) !important;
-        }
+        .code-input.filled { border-color: #4CAF50 !important; box-shadow: 0 0 15px rgba(76, 175, 80, 0.3) !important; }
+        .code-input.error { border-color: #f44336 !important; box-shadow: 0 0 15px rgba(244, 67, 54, 0.3) !important; animation: shake 0.5s ease; }
 
-        .code-input.error {
-            border-color: #f44336 !important;
-            box-shadow: 0 0 15px rgba(244, 67, 54, 0.3) !important;
-            animation: shake 0.5s ease;
-        }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-8px); }
-            75% { transform: translateX(8px); }
-        }
-
-        .verification-info {
-            text-align: center;
-            margin-bottom: 20px;
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        .verification-info strong {
-            color: var(--text-primary);
-            font-size: 1.05rem;
-        }
-
-        .verification-icon {
-            font-size: 3rem;
-            color: var(--border-color);
-            display: block;
-            margin-bottom: 15px;
-            animation: codePulse 2s infinite;
-        }
-
-        .resend-link {
-            color: var(--text-primary);
-            cursor: pointer;
-            text-decoration: underline;
-            font-weight: 600;
-            transition: color 0.3s ease;
-            font-size: 0.9rem;
-        }
-
-        .resend-link:hover {
-            color: #ffffff;
-        }
-
-        .verification-timer {
-            color: #888;
-            font-size: 0.8rem;
-            margin-top: 8px;
-        }
+        .verification-info { text-align: center; margin-bottom: 20px; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5; }
+        .verification-info strong { color: var(--text-primary); font-size: 1.05rem; }
+        .verification-icon { font-size: 3rem; color: var(--border-color); display: block; margin-bottom: 15px; animation: codePulse 2s infinite; }
+        .resend-link { color: var(--text-primary); cursor: pointer; text-decoration: underline; font-weight: 600; transition: color 0.3s ease; font-size: 0.9rem; }
+        .resend-link:hover { color: #ffffff; }
+        .verification-timer { color: #888; font-size: 0.8rem; margin-top: 8px; }
 
         .edit-gallery-btn {
-            position: absolute;
-            top: 10px;
-            right: 50px;
-            background: rgba(33, 150, 243, 0.8);
-            color: white;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 10;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
+            position: absolute; top: 10px; right: 50px;
+            background: rgba(33, 150, 243, 0.8); color: white; border: none;
+            width: 32px; height: 32px; border-radius: 50%; cursor: pointer; z-index: 10;
+            transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
         }
-
-        .edit-gallery-btn:hover {
-            background: rgba(33, 150, 243, 1);
-            transform: scale(1.15);
-        }
+        .edit-gallery-btn:hover { background: rgba(33, 150, 243, 1); transform: scale(1.15); }
 
         .notification-panel { position: fixed; top: 90px; right: 25px; z-index: 9500; max-width: 380px; width: 95%; max-height: 70vh; overflow-y: auto; scroll-behavior: smooth; }
         .notification-panel::-webkit-scrollbar { width: 5px; }
@@ -888,7 +814,6 @@
             }
         });
 
-        // Безопасное удаление элемента
         function safeRemove(id) {
             const el = document.getElementById(id);
             if (el && el.parentNode) {
@@ -1497,16 +1422,14 @@
         let galleryCache = null;
 
         async function getGalleryData() {
-            if (currentUser && api.token) {
-                try {
-                    const result = await api.getGallery();
-                    if (result.images && result.images.length > 0) {
-                        galleryCache = result.images;
-                        return result.images;
-                    }
-                } catch (err) {
-                    console.warn('Не удалось загрузить галерею с сервера, использую кэш');
+            try {
+                const result = await api.getGallery();
+                if (result.images && result.images.length > 0) {
+                    galleryCache = result.images;
+                    return result.images;
                 }
+            } catch (err) {
+                console.warn('Не удалось загрузить галерею с сервера, использую кэш');
             }
             
             if (galleryCache) return galleryCache;
@@ -2166,14 +2089,13 @@
                         showToast('✅ Профиль обновлён!', 3000);
                         navigateTo('account');
                     } catch (err) {
-                        showToast('❌ Ошибка обновления профиля', 3000);
+                        showToast('❌ Ошибка: ' + (err.message || 'Обновление не удалось'), 3000);
                     }
                 });
             }
         }
 
         function showVerificationModal(email, username, password, correctCode) {
-            // Удаляем предыдущее окно если есть
             safeRemove('verifyModal');
             
             const modalHTML = `
@@ -2382,14 +2304,12 @@
                             if (timerInterval) clearInterval(timerInterval);
                             safeRemove('verifyModal');
                             
-                            // Регистрируем пользователя на сервере
                             try {
                                 await api.register(email, username, password);
                             } catch(regErr) {
                                 console.warn('Регистрация на сервере:', regErr.message);
                             }
                             
-                            // Сохраняем локально
                             const users = JSON.parse(localStorage.getItem('magicPedicUsers') || '[]');
                             users.push({
                                 email: email,
@@ -2773,6 +2693,7 @@
                     
                     try {
                         const result = await api.login(email, password);
+                        await api.getProfile();
                         safeRemove('loginModal');
                         showToast('✅ Добро пожаловать, ' + (result.user.nickname || result.user.username) + '!', 3000);
                         navigateTo('main');
@@ -2828,8 +2749,8 @@
 
         async function showUsersPage() {
             try {
-                let users;
-
+                let users = [];
+                
                 try {
                     const result = await api.getUsers();
                     users = result.users || [];
@@ -2875,13 +2796,19 @@
             }
         }
 
-        function showUserProfile(email) {
-            const users = JSON.parse(localStorage.getItem('magicPedicUsers') || '[]');
-            const user = users.find(function(u) { return u.email === email; });
+        async function showUserProfile(email) {
+            safeRemove('userProfileModal');
+            
+            let user = null;
+            try {
+                const result = await api.getUserByEmail(email);
+                user = result.user;
+            } catch (err) {
+                const users = JSON.parse(localStorage.getItem('magicPedicUsers') || '[]');
+                user = users.find(function(u) { return u.email === email; });
+            }
             
             if (!user) return;
-            
-            safeRemove('userProfileModal');
             
             const role = getUserRole(user);
             const displayName = user.nickname || user.username;
@@ -2890,7 +2817,7 @@
             modalHTML += '<div class="modal-content" style="max-width:500px;padding-top:20px;">';
             
             modalHTML += '<div style="position:relative;width:100%;margin-bottom:50px;">';
-            modalHTML += '<div style="width:100%;height:180px;border-radius:20px;overflow:hidden;border:2px solid var(--border-color);background:' + (user.profileColor || '#333') + ';">';
+            modalHTML += '<div style="width:100%;height:180px;border-radius:20px;overflow:hidden;border:2px solid var(--border-color);background:' + (user.profile_color || user.profileColor || '#333') + ';">';
             modalHTML += (user.banner ? '<img src="' + user.banner + '" style="width:100%;height:100%;object-fit:cover;border-radius:18px;" alt="Баннер">' : '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:3rem;color:#888;"><i class="fas fa-image"></i></div>');
             modalHTML += '</div>';
             
@@ -2907,8 +2834,7 @@
             if (user.description) modalHTML += '<p style="color:var(--text-secondary);font-size:0.9rem;margin-top:10px;">' + user.description + '</p>';
             if (user.birthday) modalHTML += '<p style="color:var(--text-secondary);">🎂 ' + user.birthday + '</p>';
             
-            modalHTML += '<p style="color:var(--text-secondary);margin-top:5px;"><i class="fas fa-user-friends"></i> Друзей: ' + (user.friends ? user.friends.length : 0) + '</p>';
-            modalHTML += '<p style="color:#888;font-size:0.8rem;">📅 Регистрация: ' + new Date(user.registeredAt || Date.now()).toLocaleDateString('ru-RU') + '</p>';
+            modalHTML += '<p style="color:#888;font-size:0.8rem;">📅 Регистрация: ' + new Date(user.registered_at || Date.now()).toLocaleDateString('ru-RU') + '</p>';
             modalHTML += '</div>';
             
             modalHTML += '<div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:20px;">';
@@ -2919,15 +2845,15 @@
             
             if (isOwner(currentUser)) {
                 if (getUserRole(user) === ROLES.USER) {
-                    modalHTML += '<button class="modal-btn primary" onclick="promoteUser(\'' + email + '\',\'vip\')" style="flex:1;"><i class="fas fa-star"></i> Повысить до VIP</button>';
-                    modalHTML += '<button class="modal-btn primary" onclick="promoteUser(\'' + email + '\',\'moderator\')" style="flex:1;"><i class="fas fa-shield-alt"></i> Сделать модером</button>';
+                    modalHTML += '<button class="modal-btn primary" onclick="promoteUserAPI(\'' + email + '\',\'vip\')" style="flex:1;"><i class="fas fa-star"></i> Повысить до VIP</button>';
+                    modalHTML += '<button class="modal-btn primary" onclick="promoteUserAPI(\'' + email + '\',\'moderator\')" style="flex:1;"><i class="fas fa-shield-alt"></i> Сделать модером</button>';
                 }
                 if (getUserRole(user) === ROLES.VIP) {
-                    modalHTML += '<button class="modal-btn secondary" onclick="promoteUser(\'' + email + '\',\'user\')" style="flex:1;">Снять VIP</button>';
-                    modalHTML += '<button class="modal-btn primary" onclick="promoteUser(\'' + email + '\',\'moderator\')" style="flex:1;"><i class="fas fa-shield-alt"></i> Сделать модером</button>';
+                    modalHTML += '<button class="modal-btn secondary" onclick="promoteUserAPI(\'' + email + '\',\'user\')" style="flex:1;">Снять VIP</button>';
+                    modalHTML += '<button class="modal-btn primary" onclick="promoteUserAPI(\'' + email + '\',\'moderator\')" style="flex:1;"><i class="fas fa-shield-alt"></i> Сделать модером</button>';
                 }
                 if (getUserRole(user) === ROLES.MODERATOR) {
-                    modalHTML += '<button class="modal-btn danger" onclick="promoteUser(\'' + email + '\',\'user\')" style="flex:1;">Снять модера</button>';
+                    modalHTML += '<button class="modal-btn danger" onclick="promoteUserAPI(\'' + email + '\',\'user\')" style="flex:1;">Снять модера</button>';
                 }
             }
             
@@ -2945,32 +2871,20 @@
             }
         }
 
-        function promoteUser(email, newRole) {
-            const users = JSON.parse(localStorage.getItem('magicPedicUsers') || '[]');
-            const userIndex = users.findIndex(function(u) { return u.email === email; });
-            
-            if (userIndex !== -1) {
-                if (newRole === 'user') {
-                    users[userIndex].role = undefined;
-                } else {
-                    users[userIndex].role = newRole;
-                }
-                localStorage.setItem('magicPedicUsers', JSON.stringify(users));
-                
+        async function promoteUserAPI(email, newRole) {
+            try {
+                await api.updateUserRole(email, newRole);
                 const roleNames = { vip: 'VIP', moderator: 'Модератор', user: 'Пользователь' };
                 showToast('✅ Пользователь теперь ' + (roleNames[newRole] || newRole), 2000);
-                
-                if (currentUser && currentUser.email === email) {
-                    currentUser.role = newRole === 'user' ? undefined : newRole;
-                    saveUserData(currentUser);
-                }
-                
                 safeRemove('userProfileModal');
-                
-                if (currentPage === 'users') {
-                    navigateTo('users');
-                }
+                if (currentPage === 'users') navigateTo('users');
+            } catch (err) {
+                showToast('❌ Ошибка: ' + (err.message || 'Нет прав'), 3000);
             }
+        }
+
+        function promoteUser(email, newRole) {
+            promoteUserAPI(email, newRole);
         }
 
         function showAccountPage() {
@@ -3102,34 +3016,46 @@
             const backFromAccount = document.getElementById('backToMainFromAccount');
             const backFromUsers = document.getElementById('backToMainFromUsers');
             const backFromFriends = document.getElementById('backToMainFromFriends');
+            
             if (backFromHell) backFromHell.addEventListener('click', function() { navigateTo('main'); });
             if (backFromHeaven) backFromHeaven.addEventListener('click', function() { navigateTo('main'); });
             if (backFromAbout) backFromAbout.addEventListener('click', function() { navigateTo('main'); });
             if (backFromAccount) backFromAccount.addEventListener('click', function() { navigateTo('main'); });
             if (backFromUsers) backFromUsers.addEventListener('click', function() { navigateTo('main'); });
             if (backFromFriends) backFromFriends.addEventListener('click', function() { navigateTo('main'); });
+
             const showLoginBtn = document.getElementById('showLoginBtn');
             if (showLoginBtn) showLoginBtn.addEventListener('click', function() { showLoginModal(); });
+
             const showRegBtn = document.getElementById('showRegBtn');
             if (showRegBtn) showRegBtn.addEventListener('click', function() { showRegistrationModal(); });
+
             const logoutBtn = document.getElementById('logoutBtn');
             if (logoutBtn) logoutBtn.addEventListener('click', function() { logoutUser(); });
+
             const editProfileBtn = document.getElementById('editProfileBtn');
             if (editProfileBtn) editProfileBtn.addEventListener('click', function() { showEditProfileModal(); });
+
             const homeLink = document.getElementById('homeLink');
             if (homeLink) homeLink.addEventListener('click', function() { navigateTo('main'); });
         }
+
         function navigateTo(page, updateHistory = true) {
             const protectedPages = ['hell', 'heaven', 'about', 'gallery', 'account', 'users', 'friends'];
+            
             if (protectedPages.includes(page) && !currentUser) {
                 showToast('🔒 Пожалуйста, войдите или зарегистрируйтесь для доступа', 4000);
+                
                 setTimeout(function() {
                     showLoginModal();
                 }, 500);
+                
                 page = 'main';
             }
+            
             currentPage = page;
             let htmlContent = '';
+            
             if (page === 'main') { htmlContent = renderMainPage(); document.title = 'Magic Pedic | Главная'; }
             else if (page === 'hell') { htmlContent = renderHellPage(); document.title = 'Свино-девочки ждут'; }
             else if (page === 'heaven') { htmlContent = renderHeavenPage(); document.title = 'Шоколадка баунти'; }
@@ -3152,6 +3078,7 @@
                 if (updateHistory) updateURL(page);
                 return;
             }
+            
             if (appContainer) {
                 appContainer.innerHTML = htmlContent;
                 if (updateHistory) {
@@ -3163,64 +3090,82 @@
                 }, 50);
             }
         }
+
         document.getElementById('footerAboutBtn').addEventListener('click', function() {
             navigateTo('about');
         });
+
         document.getElementById('galleryLink').addEventListener('click', function() {
             navigateTo('gallery');
         });
+
         document.getElementById('accountLink').addEventListener('click', function() {
             navigateTo('account');
         });
+
         document.getElementById('usersBtn').addEventListener('click', function() {
             navigateTo('users');
         });
+
         document.getElementById('friendsBtn').addEventListener('click', function() {
             navigateTo('friends');
         });
+
         document.getElementById('notificationsBtn').addEventListener('click', function() {
             showNotifications();
         });
+
         document.getElementById('themeToggle').addEventListener('click', function() {
             toggleTheme();
         });
+
         document.getElementById('playlistToggleBtn').addEventListener('click', function() {
             togglePlaylist();
         });
+
         document.querySelectorAll('.playlist-item').forEach(function(item, index) {
             item.addEventListener('click', function() {
                 switchTrack(index);
             });
         });
+
         document.addEventListener('click', function(e) {
             const notifPanel = document.getElementById('notificationPanel');
             const notifBtn = document.getElementById('notificationsBtn');
             const playlistPanel = document.getElementById('playlistPanel');
             const playlistBtn = document.getElementById('playlistToggleBtn');
+            
             if (notifPanel && notifPanel.style.display === 'block') {
                 if (!notifPanel.contains(e.target) && e.target !== notifBtn && !notifBtn.contains(e.target)) {
                     notifPanel.style.display = 'none';
                 }
             }
+            
             if (playlistPanel && playlistPanel.style.display === 'block') {
                 if (!playlistPanel.contains(e.target) && e.target !== playlistBtn && !playlistBtn.contains(e.target)) {
                     playlistPanel.style.display = 'none';
                 }
             }
         });
+
         function init() {
             currentUser = getUserData();
+            
             const savedToken = localStorage.getItem('auth_token');
             if (savedToken) {
                 api.setToken(savedToken);
             }
+            
             initTheme();
             updateFooterDate();
             updateNotificationBadge();
+            
             const pageFromURL = getPageFromURL();
             navigateTo(pageFromURL, false);
+            
             startPetals();
         }
+
         init();
     </script>
 </body>
