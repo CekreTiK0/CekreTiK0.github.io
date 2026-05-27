@@ -2829,11 +2829,11 @@
         async function showUsersPage() {
             try {
                 let users;
-                
-                if (api.token) {
+
+                try {
                     const result = await api.getUsers();
                     users = result.users || [];
-                } else {
+                } catch (err) {
                     users = JSON.parse(localStorage.getItem('magicPedicUsers') || '[]');
                 }
                 
