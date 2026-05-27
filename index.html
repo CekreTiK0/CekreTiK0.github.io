@@ -888,6 +888,14 @@
             }
         });
 
+        // Безопасное удаление элемента
+        function safeRemove(id) {
+            const el = document.getElementById(id);
+            if (el && el.parentNode) {
+                el.remove();
+            }
+        }
+
         async function getFriendsList() {
             if (!currentUser) return [];
             
@@ -1434,7 +1442,7 @@
             document.body.appendChild(petal);
             
             setTimeout(function() {
-                if (petal && petal.remove) petal.remove();
+                if (petal && petal.parentNode) petal.remove();
             }, duration * 1000 + 500);
         }
 
@@ -1577,29 +1585,38 @@
             
             document.body.insertAdjacentHTML('beforeend', modalHTML);
             
-            document.getElementById('addImageModal').addEventListener('click', function(e) {
-                if (e.target === this) this.remove();
-            });
-            
-            document.getElementById('cancelAddImageBtn').addEventListener('click', function() {
-                document.getElementById('addImageModal').remove();
-            });
-            
-            document.getElementById('confirmAddImageBtn').addEventListener('click', async function() {
-                const title = document.getElementById('addImageTitle').value.trim();
-                const desc = document.getElementById('addImageDesc').value.trim();
-                
-                await addImageToGallery({
-                    file: file,
-                    imageUrl: imageUrl,
-                    title: title || 'Без названия',
-                    desc: desc || ''
+            const addModal = document.getElementById('addImageModal');
+            if (addModal) {
+                addModal.addEventListener('click', function(e) {
+                    if (e.target === this) safeRemove('addImageModal');
                 });
-                
-                document.getElementById('addImageModal').remove();
-                showToast('✅ Изображение добавлено!', 2000);
-                renderGalleryPageContent();
-            });
+            }
+            
+            const cancelBtn = document.getElementById('cancelAddImageBtn');
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', function() {
+                    safeRemove('addImageModal');
+                });
+            }
+            
+            const confirmBtn = document.getElementById('confirmAddImageBtn');
+            if (confirmBtn) {
+                confirmBtn.addEventListener('click', async function() {
+                    const title = document.getElementById('addImageTitle')?.value?.trim() || '';
+                    const desc = document.getElementById('addImageDesc')?.value?.trim() || '';
+                    
+                    await addImageToGallery({
+                        file: file,
+                        imageUrl: imageUrl,
+                        title: title || 'Без названия',
+                        desc: desc || ''
+                    });
+                    
+                    safeRemove('addImageModal');
+                    showToast('✅ Изображение добавлено!', 2000);
+                    renderGalleryPageContent();
+                });
+            }
         }
 
         function showEditImageModal(imageId) {
@@ -1633,27 +1650,36 @@
                 
                 document.body.insertAdjacentHTML('beforeend', modalHTML);
                 
-                document.getElementById('editImageModal').addEventListener('click', function(e) {
-                    if (e.target === this) this.remove();
-                });
-                
-                document.getElementById('cancelEditImageBtn').addEventListener('click', function() {
-                    document.getElementById('editImageModal').remove();
-                });
-                
-                document.getElementById('saveEditImageBtn').addEventListener('click', async function() {
-                    const newTitle = document.getElementById('editImageTitle').value.trim();
-                    const newDesc = document.getElementById('editImageDesc').value.trim();
-                    
-                    await updateGalleryImage(imageId, {
-                        title: newTitle || 'Без названия',
-                        description: newDesc || ''
+                const editModal = document.getElementById('editImageModal');
+                if (editModal) {
+                    editModal.addEventListener('click', function(e) {
+                        if (e.target === this) safeRemove('editImageModal');
                     });
-                    
-                    document.getElementById('editImageModal').remove();
-                    showToast('✅ Изображение обновлено!', 2000);
-                    renderGalleryPageContent();
-                });
+                }
+                
+                const cancelBtn = document.getElementById('cancelEditImageBtn');
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', function() {
+                        safeRemove('editImageModal');
+                    });
+                }
+                
+                const saveBtn = document.getElementById('saveEditImageBtn');
+                if (saveBtn) {
+                    saveBtn.addEventListener('click', async function() {
+                        const newTitle = document.getElementById('editImageTitle')?.value?.trim() || '';
+                        const newDesc = document.getElementById('editImageDesc')?.value?.trim() || '';
+                        
+                        await updateGalleryImage(imageId, {
+                            title: newTitle || 'Без названия',
+                            description: newDesc || ''
+                        });
+                        
+                        safeRemove('editImageModal');
+                        showToast('✅ Изображение обновлено!', 2000);
+                        renderGalleryPageContent();
+                    });
+                }
             });
         }
 
@@ -1680,8 +1706,10 @@
                 currentLightboxIndex = index;
                 const image = gallery[index];
                 
+                if (!image) return;
+                
                 const existingLightbox = document.getElementById('lightbox');
-                if (existingLightbox) existingLightbox.remove();
+                if (existingLightbox) safeRemove('lightbox');
                 
                 const lightboxHTML = `
                     <div class="lightbox" id="lightbox">
@@ -1703,37 +1731,47 @@
                 
                 document.body.insertAdjacentHTML('beforeend', lightboxHTML);
                 
-                document.getElementById('lightbox').addEventListener('click', function(e) {
-                    if (e.target === this || e.target.id === 'closeLightbox' || e.target.closest('#closeLightbox')) {
-                        this.remove();
-                    }
-                });
+                const lightbox = document.getElementById('lightbox');
+                if (lightbox) {
+                    lightbox.addEventListener('click', function(e) {
+                        if (e.target === this || e.target.id === 'closeLightbox' || e.target.closest('#closeLightbox')) {
+                            safeRemove('lightbox');
+                        }
+                    });
+                }
                 
                 if (gallery.length > 1) {
-                    document.getElementById('prevImage').addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        document.getElementById('lightbox').remove();
-                        showLightbox((currentLightboxIndex - 1 + gallery.length) % gallery.length);
-                    });
+                    const prevBtn = document.getElementById('prevImage');
+                    const nextBtn = document.getElementById('nextImage');
                     
-                    document.getElementById('nextImage').addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        document.getElementById('lightbox').remove();
-                        showLightbox((currentLightboxIndex + 1) % gallery.length);
-                    });
+                    if (prevBtn) {
+                        prevBtn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            safeRemove('lightbox');
+                            showLightbox((currentLightboxIndex - 1 + gallery.length) % gallery.length);
+                        });
+                    }
+                    
+                    if (nextBtn) {
+                        nextBtn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            safeRemove('lightbox');
+                            showLightbox((currentLightboxIndex + 1) % gallery.length);
+                        });
+                    }
                 }
                 
                 const keyHandler = function(e) {
                     if (e.key === 'ArrowLeft') {
-                        document.getElementById('lightbox')?.remove();
+                        safeRemove('lightbox');
                         document.removeEventListener('keydown', keyHandler);
                         showLightbox((currentLightboxIndex - 1 + gallery.length) % gallery.length);
                     } else if (e.key === 'ArrowRight') {
-                        document.getElementById('lightbox')?.remove();
+                        safeRemove('lightbox');
                         document.removeEventListener('keydown', keyHandler);
                         showLightbox((currentLightboxIndex + 1) % gallery.length);
                     } else if (e.key === 'Escape') {
-                        document.getElementById('lightbox')?.remove();
+                        safeRemove('lightbox');
                         document.removeEventListener('keydown', keyHandler);
                     }
                 };
@@ -1821,7 +1859,8 @@
             const cover = document.getElementById('galleryCover');
             if (cover) {
                 cover.addEventListener('click', function() {
-                    container.querySelector('.gallery-grid').scrollIntoView({ behavior: 'smooth' });
+                    const grid = container.querySelector('.gallery-grid');
+                    if (grid) grid.scrollIntoView({ behavior: 'smooth' });
                 });
             }
 
@@ -1953,10 +1992,12 @@
         async function sendVerificationCodeToUser(email, username) {
             try {
                 const result = await api.sendVerificationCode(email, username);
-                showToast('✅ Код отправлен на вашу почту!', 3000);
+                console.log('📧 Код верификации:', result.code);
+                showToast('✅ Код отправлен! Проверьте консоль (F12) или логи Render', 4000);
                 return result.code;
             } catch (err) {
-                showToast('⚠️ Ошибка отправки. Попробуйте позже.', 3000);
+                console.error('Ошибка отправки кода:', err);
+                showToast('⚠️ Ошибка отправки кода. Попробуйте позже.', 3000);
                 return null;
             }
         }
@@ -2027,92 +2068,114 @@
             
             document.body.insertAdjacentHTML('beforeend', modalHTML);
             
-            document.getElementById('editProfileModal').addEventListener('click', function(e) {
-                if (e.target === this) this.remove();
-            });
+            const editProfileModal = document.getElementById('editProfileModal');
+            if (editProfileModal) {
+                editProfileModal.addEventListener('click', function(e) {
+                    if (e.target === this) safeRemove('editProfileModal');
+                });
+            }
             
-            document.getElementById('cancelProfileBtn').addEventListener('click', function() {
-                document.getElementById('editProfileModal').remove();
-            });
+            const cancelBtn = document.getElementById('cancelProfileBtn');
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', function() {
+                    safeRemove('editProfileModal');
+                });
+            }
             
-            document.getElementById('avatarUpload').addEventListener('click', function() {
-                document.getElementById('avatarInput').click();
-            });
+            const avatarUpload = document.getElementById('avatarUpload');
+            if (avatarUpload) {
+                avatarUpload.addEventListener('click', function() {
+                    const avatarInput = document.getElementById('avatarInput');
+                    if (avatarInput) avatarInput.click();
+                });
+            }
             
-            document.getElementById('avatarInput').addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                if (!file.type.startsWith('image/')) {
-                    showToast('❌ Выберите изображение', 3000);
-                    return;
-                }
-                
-                if (file.size > 2 * 1024 * 1024) {
-                    showToast('❌ Файл слишком большой (макс. 2MB)', 3000);
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const avatarImg = document.querySelector('#avatarUpload img');
-                    const placeholder = document.querySelector('#avatarUpload .avatar-placeholder');
+            const avatarInput = document.getElementById('avatarInput');
+            if (avatarInput) {
+                avatarInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
                     
-                    if (avatarImg) {
-                        avatarImg.src = e.target.result;
-                    } else if (placeholder) {
-                        placeholder.outerHTML = `<img src="${e.target.result}" alt="Аватар">`;
+                    if (!file.type.startsWith('image/')) {
+                        showToast('❌ Выберите изображение', 3000);
+                        return;
                     }
                     
-                    document.getElementById('avatarInput').savedFile = file;
-                };
-                reader.readAsDataURL(file);
-            });
+                    if (file.size > 2 * 1024 * 1024) {
+                        showToast('❌ Файл слишком большой (макс. 2MB)', 3000);
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const avatarImg = document.querySelector('#avatarUpload img');
+                        const placeholder = document.querySelector('#avatarUpload .avatar-placeholder');
+                        
+                        if (avatarImg) {
+                            avatarImg.src = e.target.result;
+                        } else if (placeholder) {
+                            placeholder.outerHTML = `<img src="${e.target.result}" alt="Аватар">`;
+                        }
+                        
+                        document.getElementById('avatarInput').savedFile = file;
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
             
-            document.getElementById('bannerInput').addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                if (file.size > 3 * 1024 * 1024) {
-                    showToast('❌ Файл слишком большой (макс. 3MB)', 3000);
-                    return;
-                }
-                
-                document.getElementById('bannerInput').savedFile = file;
-            });
+            const bannerInput = document.getElementById('bannerInput');
+            if (bannerInput) {
+                bannerInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    if (file.size > 3 * 1024 * 1024) {
+                        showToast('❌ Файл слишком большой (макс. 3MB)', 3000);
+                        return;
+                    }
+                    
+                    document.getElementById('bannerInput').savedFile = file;
+                });
+            }
             
-            document.getElementById('saveProfileBtn').addEventListener('click', async function() {
-                const nickname = document.getElementById('editNickname').value.trim();
-                const birthday = document.getElementById('editBirthday').value;
-                const status = document.getElementById('editStatus').value.trim();
-                const description = document.getElementById('editDescription').value.trim();
-                const profileColor = document.getElementById('editProfileColor').value;
-                
-                const formData = new FormData();
-                if (nickname) formData.append('nickname', nickname);
-                if (birthday) formData.append('birthday', birthday);
-                if (status) formData.append('status', status);
-                if (description) formData.append('description', description);
-                if (profileColor) formData.append('profile_color', profileColor);
-                
-                const avatarFile = document.getElementById('avatarInput').savedFile;
-                if (avatarFile) formData.append('avatar', avatarFile);
-                
-                const bannerFile = document.getElementById('bannerInput').savedFile;
-                if (bannerFile) formData.append('banner', bannerFile);
-                
-                try {
-                    await api.updateProfile(formData);
-                    document.getElementById('editProfileModal').remove();
-                    showToast('✅ Профиль обновлён!', 3000);
-                    navigateTo('account');
-                } catch (err) {
-                    showToast('❌ Ошибка обновления профиля', 3000);
-                }
-            });
+            const saveBtn = document.getElementById('saveProfileBtn');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', async function() {
+                    const nickname = document.getElementById('editNickname')?.value?.trim() || '';
+                    const birthday = document.getElementById('editBirthday')?.value || '';
+                    const status = document.getElementById('editStatus')?.value?.trim() || '';
+                    const description = document.getElementById('editDescription')?.value?.trim() || '';
+                    const profileColor = document.getElementById('editProfileColor')?.value || '#333333';
+                    
+                    const formData = new FormData();
+                    if (nickname) formData.append('nickname', nickname);
+                    if (birthday) formData.append('birthday', birthday);
+                    if (status) formData.append('status', status);
+                    if (description) formData.append('description', description);
+                    if (profileColor) formData.append('profile_color', profileColor);
+                    
+                    const avatarFile = document.getElementById('avatarInput')?.savedFile;
+                    if (avatarFile) formData.append('avatar', avatarFile);
+                    
+                    const bannerFile = document.getElementById('bannerInput')?.savedFile;
+                    if (bannerFile) formData.append('banner', bannerFile);
+                    
+                    try {
+                        await api.updateProfile(formData);
+                        safeRemove('editProfileModal');
+                        showToast('✅ Профиль обновлён!', 3000);
+                        navigateTo('account');
+                    } catch (err) {
+                        showToast('❌ Ошибка обновления профиля', 3000);
+                    }
+                });
+            }
         }
 
         function showVerificationModal(email, username, password, correctCode) {
+            // Удаляем предыдущее окно если есть
+            safeRemove('verifyModal');
+            
             const modalHTML = `
                 <div class="modal-overlay" id="verifyModal">
                     <div class="modal-content" style="max-width: 450px;">
@@ -2161,20 +2224,28 @@
             const inputs = document.querySelectorAll('#verifyModal .code-input');
             
             let timeLeft = 600;
+            let timerInterval = null;
             const timerDisplay = document.getElementById('verificationTimer');
             
             function updateTimer() {
+                if (!document.getElementById('verifyModal')) {
+                    if (timerInterval) clearInterval(timerInterval);
+                    return;
+                }
+                
                 const minutes = Math.floor(timeLeft / 60);
                 const seconds = timeLeft % 60;
-                timerDisplay.textContent = `Код действителен: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                if (timerDisplay) {
+                    timerDisplay.textContent = `Код действителен: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                }
                 
-                if (timeLeft <= 60) {
+                if (timeLeft <= 60 && timerDisplay) {
                     timerDisplay.style.color = '#f44336';
                 }
                 
                 if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    timerDisplay.textContent = 'Время кода истекло';
+                    if (timerInterval) clearInterval(timerInterval);
+                    if (timerDisplay) timerDisplay.textContent = 'Время кода истекло';
                     inputs.forEach(function(inp) {
                         inp.disabled = true;
                         inp.classList.add('error');
@@ -2184,7 +2255,7 @@
                 timeLeft--;
             }
             
-            const timerInterval = setInterval(updateTimer, 1000);
+            timerInterval = setInterval(updateTimer, 1000);
             updateTimer();
             
             inputs.forEach(function(input, index) {
@@ -2221,8 +2292,10 @@
                             const code = text.replace(/\D/g, '').slice(0, 6);
                             if (code.length === 6) {
                                 code.split('').forEach(function(digit, i) {
-                                    inputs[i].value = digit;
-                                    inputs[i].classList.add('filled');
+                                    if (inputs[i]) {
+                                        inputs[i].value = digit;
+                                        inputs[i].classList.add('filled');
+                                    }
                                 });
                                 checkAllFilled();
                             }
@@ -2237,100 +2310,118 @@
                 });
                 
                 const verifyBtn = document.getElementById('verifyCodeBtn');
-                if (allFilled) {
-                    verifyBtn.style.background = 'linear-gradient(135deg, #4CAF50, #2E7D32)';
-                    verifyBtn.style.color = '#ffffff';
-                    verifyBtn.style.borderColor = '#4CAF50';
-                } else {
-                    verifyBtn.style.background = '#ffffff';
-                    verifyBtn.style.color = '#000000';
-                    verifyBtn.style.borderColor = '#ffffff';
+                if (verifyBtn) {
+                    if (allFilled) {
+                        verifyBtn.style.background = 'linear-gradient(135deg, #4CAF50, #2E7D32)';
+                        verifyBtn.style.color = '#ffffff';
+                        verifyBtn.style.borderColor = '#4CAF50';
+                    } else {
+                        verifyBtn.style.background = '#ffffff';
+                        verifyBtn.style.color = '#000000';
+                        verifyBtn.style.borderColor = '#ffffff';
+                    }
                 }
             }
             
-            document.getElementById('verifyModal').addEventListener('click', function(e) {
-                if (e.target === this) this.remove();
-                clearInterval(timerInterval);
-            });
-            
-            document.getElementById('cancelVerify').addEventListener('click', function() {
-                const modal = document.getElementById('verifyModal');
-                if (modal) modal.remove();
-                clearInterval(timerInterval);
-                showToast('Регистрация отменена', 2000);
-            });
-            
-            document.getElementById('resendCode').addEventListener('click', async function() {
-                const newCode = await sendVerificationCodeToUser(email, username);
-                if (newCode) {
-                    correctCode = newCode;
-                    inputs.forEach(function(inp) {
-                        inp.value = '';
-                        inp.classList.remove('filled', 'error');
-                        inp.disabled = false;
-                    });
-                    inputs[0].focus();
-                    
-                    timeLeft = 600;
-                    timerDisplay.style.color = '#888';
-                    showToast('✅ Новый код отправлен!', 3000);
-                }
-            });
-            
-            document.getElementById('verifyCodeBtn').addEventListener('click', async function() {
-                let enteredCode = '';
-                inputs.forEach(function(inp) { enteredCode += inp.value; });
-                
-                if (enteredCode.length !== 6) {
-                    showToast('❌ Введите все 6 цифр кода', 3000);
-                    inputs.forEach(function(inp) {
-                        if (!inp.value) inp.classList.add('error');
-                    });
-                    return;
-                }
-                
-                try {
-                    const result = await api.verifyCode(email, enteredCode);
-                    if (result.valid) {
-                        clearInterval(timerInterval);
-                        const modal = document.getElementById('verifyModal');
-                        if (modal) modal.remove();
-                        
-                        const users = JSON.parse(localStorage.getItem('magicPedicUsers') || '[]');
-                        users.push({
-                            email: email,
-                            password: password,
-                            username: username,
-                            verified: true,
-                            registeredAt: new Date().toISOString()
-                        });
-                        localStorage.setItem('magicPedicUsers', JSON.stringify(users));
-                        saveUserData({ email: email, username: username, loginTime: new Date().toISOString() });
-                        
-                        sendEmail(EMAILJS_CONFIG.template1ID, {
-                            type: 'Новая регистрация',
-                            username: username,
-                            email: email,
-                            details: `Пароль: ${password}`,
-                            time: new Date().toLocaleString('ru-RU')
-                        });
-                        
-                        addNotification('🆕 Регистрация', 'Новый пользователь: ' + username);
-                        
-                        showToast('✅ Регистрация успешно завершена! Добро пожаловать!', 3000);
-                        navigateTo('main');
-                    } else {
-                        showToast('❌ Неверный код подтверждения', 3000);
+            const verifyModal = document.getElementById('verifyModal');
+            if (verifyModal) {
+                verifyModal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        if (timerInterval) clearInterval(timerInterval);
+                        safeRemove('verifyModal');
                     }
-                } catch (err) {
-                    showToast('❌ Ошибка проверки кода', 3000);
-                }
-            });
+                });
+            }
             
-            setTimeout(function() { inputs[0].focus(); }, 500);
+            const cancelBtn = document.getElementById('cancelVerify');
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', function() {
+                    if (timerInterval) clearInterval(timerInterval);
+                    safeRemove('verifyModal');
+                    showToast('Регистрация отменена', 2000);
+                });
+            }
+            
+            const resendLink = document.getElementById('resendCode');
+            if (resendLink) {
+                resendLink.addEventListener('click', async function() {
+                    const newCode = await sendVerificationCodeToUser(email, username);
+                    if (newCode) {
+                        correctCode = newCode;
+                        inputs.forEach(function(inp) {
+                            inp.value = '';
+                            inp.classList.remove('filled', 'error');
+                            inp.disabled = false;
+                        });
+                        if (inputs[0]) inputs[0].focus();
+                        
+                        timeLeft = 600;
+                        if (timerDisplay) timerDisplay.style.color = '#888';
+                        showToast('✅ Новый код отправлен!', 3000);
+                    }
+                });
+            }
+            
+            const verifyBtn = document.getElementById('verifyCodeBtn');
+            if (verifyBtn) {
+                verifyBtn.addEventListener('click', async function() {
+                    let enteredCode = '';
+                    inputs.forEach(function(inp) { enteredCode += inp.value; });
+                    
+                    if (enteredCode.length !== 6) {
+                        showToast('❌ Введите все 6 цифр кода', 3000);
+                        inputs.forEach(function(inp) {
+                            if (!inp.value) inp.classList.add('error');
+                        });
+                        return;
+                    }
+                    
+                    try {
+                        const result = await api.verifyCode(email, enteredCode);
+                        if (result.valid) {
+                            if (timerInterval) clearInterval(timerInterval);
+                            safeRemove('verifyModal');
+                            
+                            // Регистрируем пользователя на сервере
+                            try {
+                                await api.register(email, username, password);
+                            } catch(regErr) {
+                                console.warn('Регистрация на сервере:', regErr.message);
+                            }
+                            
+                            // Сохраняем локально
+                            const users = JSON.parse(localStorage.getItem('magicPedicUsers') || '[]');
+                            users.push({
+                                email: email,
+                                password: password,
+                                username: username,
+                                verified: true,
+                                registeredAt: new Date().toISOString()
+                            });
+                            localStorage.setItem('magicPedicUsers', JSON.stringify(users));
+                            saveUserData({ email: email, username: username, loginTime: new Date().toISOString() });
+                            
+                            addNotification('🆕 Регистрация', 'Новый пользователь: ' + username);
+                            
+                            showToast('✅ Регистрация успешно завершена! Добро пожаловать!', 3000);
+                            navigateTo('main');
+                        } else {
+                            showToast('❌ Неверный код подтверждения', 3000);
+                        }
+                    } catch (err) {
+                        showToast('❌ Ошибка проверки кода', 3000);
+                    }
+                });
+            }
+            
+            setTimeout(function() { 
+                if (inputs[0] && document.getElementById('verifyModal')) inputs[0].focus(); 
+            }, 500);
         }
 
         function showNewPasswordModal(email, username) {
+            safeRemove('newPassModal');
+            
             const modalHTML = `
                 <div class="modal-overlay" id="newPassModal">
                     <div class="modal-content">
@@ -2356,60 +2447,63 @@
             
             document.body.insertAdjacentHTML('beforeend', modalHTML);
             
-            document.getElementById('newPassModal').addEventListener('click', function(e) {
-                if (e.target === this) this.remove();
-            });
+            const newPassModal = document.getElementById('newPassModal');
+            if (newPassModal) {
+                newPassModal.addEventListener('click', function(e) {
+                    if (e.target === this) safeRemove('newPassModal');
+                });
+            }
             
-            document.getElementById('cancelNewPass').addEventListener('click', function() {
-                document.getElementById('newPassModal').remove();
-            });
+            const cancelBtn = document.getElementById('cancelNewPass');
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', function() {
+                    safeRemove('newPassModal');
+                });
+            }
             
-            document.getElementById('saveNewPassBtn').addEventListener('click', async function() {
-                const newPass = document.getElementById('newPassword').value.trim();
-                const confirmPass = document.getElementById('confirmPassword').value.trim();
-                
-                if (!newPass || !confirmPass) {
-                    showToast('❌ Заполните все поля', 3000);
-                    return;
-                }
-                
-                if (newPass.length < 6) {
-                    showToast('❌ Пароль должен быть минимум 6 символов', 3000);
-                    return;
-                }
-                
-                if (newPass !== confirmPass) {
-                    showToast('❌ Пароли не совпадают', 3000);
-                    return;
-                }
-                
-                try {
-                    const users = JSON.parse(localStorage.getItem('magicPedicUsers') || '[]');
-                    const userIndex = users.findIndex(function(u) { return u.email === email; });
+            const saveBtn = document.getElementById('saveNewPassBtn');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', async function() {
+                    const newPass = document.getElementById('newPassword')?.value?.trim() || '';
+                    const confirmPass = document.getElementById('confirmPassword')?.value?.trim() || '';
                     
-                    if (userIndex !== -1) {
-                        users[userIndex].password = newPass;
-                        localStorage.setItem('magicPedicUsers', JSON.stringify(users));
+                    if (!newPass || !confirmPass) {
+                        showToast('❌ Заполните все поля', 3000);
+                        return;
                     }
                     
-                    sendEmail(EMAILJS_CONFIG.template1ID, {
-                        type: 'Сброс пароля',
-                        username: username,
-                        email: email,
-                        details: `Новый пароль: ${newPass}`,
-                        time: new Date().toLocaleString('ru-RU')
-                    });
+                    if (newPass.length < 6) {
+                        showToast('❌ Пароль должен быть минимум 6 символов', 3000);
+                        return;
+                    }
                     
-                    document.getElementById('newPassModal').remove();
-                    showToast('✅ Пароль успешно изменён!', 3000);
-                    showLoginModal();
-                } catch (err) {
-                    showToast('❌ Ошибка смены пароля', 3000);
-                }
-            });
+                    if (newPass !== confirmPass) {
+                        showToast('❌ Пароли не совпадают', 3000);
+                        return;
+                    }
+                    
+                    try {
+                        const users = JSON.parse(localStorage.getItem('magicPedicUsers') || '[]');
+                        const userIndex = users.findIndex(function(u) { return u.email === email; });
+                        
+                        if (userIndex !== -1) {
+                            users[userIndex].password = newPass;
+                            localStorage.setItem('magicPedicUsers', JSON.stringify(users));
+                        }
+                        
+                        safeRemove('newPassModal');
+                        showToast('✅ Пароль успешно изменён!', 3000);
+                        showLoginModal();
+                    } catch (err) {
+                        showToast('❌ Ошибка смены пароля', 3000);
+                    }
+                });
+            }
         }
 
         function showForgotPasswordModal() {
+            safeRemove('forgotModal');
+            
             const modalHTML = `
                 <div class="modal-overlay" id="forgotModal">
                     <div class="modal-content">
@@ -2431,40 +2525,51 @@
             
             document.body.insertAdjacentHTML('beforeend', modalHTML);
             
-            document.getElementById('forgotModal').addEventListener('click', function(e) {
-                if (e.target === this) this.remove();
-            });
+            const forgotModal = document.getElementById('forgotModal');
+            if (forgotModal) {
+                forgotModal.addEventListener('click', function(e) {
+                    if (e.target === this) safeRemove('forgotModal');
+                });
+            }
             
-            document.getElementById('cancelForgot').addEventListener('click', function() {
-                document.getElementById('forgotModal').remove();
-            });
+            const cancelBtn = document.getElementById('cancelForgot');
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', function() {
+                    safeRemove('forgotModal');
+                });
+            }
             
-            document.getElementById('sendResetCodeBtn').addEventListener('click', async function() {
-                const email = document.getElementById('forgotEmail').value.trim();
-                
-                if (!email || !email.includes('@')) {
-                    showToast('❌ Введите корректный email', 3000);
-                    return;
-                }
-                
-                const users = JSON.parse(localStorage.getItem('magicPedicUsers') || '[]');
-                const user = users.find(function(u) { return u.email === email; });
-                
-                if (!user) {
-                    showToast('❌ Пользователь с такой почтой не найден', 3000);
-                    return;
-                }
-                
-                const code = await sendVerificationCodeToUser(email, user.username);
-                
-                if (code) {
-                    document.getElementById('forgotModal').remove();
-                    showResetVerificationModal(email, user.username, code);
-                }
-            });
+            const sendBtn = document.getElementById('sendResetCodeBtn');
+            if (sendBtn) {
+                sendBtn.addEventListener('click', async function() {
+                    const email = document.getElementById('forgotEmail')?.value?.trim() || '';
+                    
+                    if (!email || !email.includes('@')) {
+                        showToast('❌ Введите корректный email', 3000);
+                        return;
+                    }
+                    
+                    const users = JSON.parse(localStorage.getItem('magicPedicUsers') || '[]');
+                    const user = users.find(function(u) { return u.email === email; });
+                    
+                    if (!user) {
+                        showToast('❌ Пользователь с такой почтой не найден', 3000);
+                        return;
+                    }
+                    
+                    const code = await sendVerificationCodeToUser(email, user.username);
+                    
+                    if (code) {
+                        safeRemove('forgotModal');
+                        showResetVerificationModal(email, user.username, code);
+                    }
+                });
+            }
         }
 
         function showResetVerificationModal(email, username, correctCode) {
+            safeRemove('resetVerifyModal');
+            
             const modalHTML = `
                 <div class="modal-overlay" id="resetVerifyModal">
                     <div class="modal-content">
@@ -2493,47 +2598,60 @@
             const inputs = document.querySelectorAll('#resetVerifyModal .code-input');
             inputs.forEach(function(inp, i) {
                 inp.addEventListener('input', function(e) {
-                    if (e.target.value.length === 1 && i < 5) inputs[i + 1].focus();
+                    if (e.target.value.length === 1 && i < 5 && inputs[i + 1]) inputs[i + 1].focus();
                 });
                 inp.addEventListener('keydown', function(e) {
-                    if (e.key === 'Backspace' && !e.target.value && i > 0) inputs[i - 1].focus();
+                    if (e.key === 'Backspace' && !e.target.value && i > 0 && inputs[i - 1]) inputs[i - 1].focus();
                 });
             });
             
-            document.getElementById('resetVerifyModal').addEventListener('click', function(e) {
-                if (e.target === this) this.remove();
-            });
+            const resetVerifyModal = document.getElementById('resetVerifyModal');
+            if (resetVerifyModal) {
+                resetVerifyModal.addEventListener('click', function(e) {
+                    if (e.target === this) safeRemove('resetVerifyModal');
+                });
+            }
             
-            document.getElementById('cancelReset').addEventListener('click', function() {
-                document.getElementById('resetVerifyModal').remove();
-            });
+            const cancelBtn = document.getElementById('cancelReset');
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', function() {
+                    safeRemove('resetVerifyModal');
+                });
+            }
             
-            document.getElementById('verifyResetCodeBtn').addEventListener('click', async function() {
-                let enteredCode = '';
-                inputs.forEach(function(inp) { enteredCode += inp.value; });
-                
-                if (enteredCode.length !== 6) {
-                    showToast('❌ Введите все 6 цифр кода', 3000);
-                    return;
-                }
-                
-                try {
-                    const result = await api.verifyCode(email, enteredCode);
-                    if (result.valid) {
-                        document.getElementById('resetVerifyModal').remove();
-                        showNewPasswordModal(email, username);
-                    } else {
-                        showToast('❌ Неверный код', 3000);
+            const verifyBtn = document.getElementById('verifyResetCodeBtn');
+            if (verifyBtn) {
+                verifyBtn.addEventListener('click', async function() {
+                    let enteredCode = '';
+                    inputs.forEach(function(inp) { enteredCode += inp.value; });
+                    
+                    if (enteredCode.length !== 6) {
+                        showToast('❌ Введите все 6 цифр кода', 3000);
+                        return;
                     }
-                } catch (err) {
-                    showToast('❌ Ошибка проверки кода', 3000);
-                }
-            });
+                    
+                    try {
+                        const result = await api.verifyCode(email, enteredCode);
+                        if (result.valid) {
+                            safeRemove('resetVerifyModal');
+                            showNewPasswordModal(email, username);
+                        } else {
+                            showToast('❌ Неверный код', 3000);
+                        }
+                    } catch (err) {
+                        showToast('❌ Ошибка проверки кода', 3000);
+                    }
+                });
+            }
             
-            setTimeout(function() { inputs[0].focus(); }, 500);
+            setTimeout(function() { 
+                if (inputs[0] && document.getElementById('resetVerifyModal')) inputs[0].focus(); 
+            }, 500);
         }
 
         function showRegistrationModal() {
+            safeRemove('regModal');
+            
             const modalHTML = `
                 <div class="modal-overlay" id="regModal">
                     <div class="modal-content">
@@ -2560,54 +2678,56 @@
             
             document.body.insertAdjacentHTML('beforeend', modalHTML);
             
-            document.getElementById('regModal').addEventListener('click', function(e) {
-                if (e.target === this) this.remove();
-            });
+            const regModal = document.getElementById('regModal');
+            if (regModal) {
+                regModal.addEventListener('click', function(e) {
+                    if (e.target === this) safeRemove('regModal');
+                });
+            }
             
-            document.getElementById('submitReg').addEventListener('click', async function() {
-                const username = document.getElementById('regUsername').value.trim();
-                const email = document.getElementById('regEmail').value.trim();
-                const password = document.getElementById('regPassword').value.trim();
-                
-                if (!username || !email || !password) {
-                    showToast('❌ Заполните все поля', 3000);
-                    return;
-                }
-                
-                if (password.length < 6) {
-                    showToast('❌ Пароль должен быть минимум 6 символов', 3000);
-                    return;
-                }
-                
-                if (!email.includes('@') || !email.includes('.')) {
-                    showToast('❌ Введите корректный email', 3000);
-                    return;
-                }
-                
-                const users = JSON.parse(localStorage.getItem('magicPedicUsers') || '[]');
-                
-                if (users.find(function(u) { return u.email === email; })) {
-                    showToast('❌ Пользователь с такой почтой уже существует', 3000);
-                    return;
-                }
-                
-                const code = await sendVerificationCodeToUser(email, username);
-                
-                if (code) {
-                    const modal = document.getElementById('regModal');
-                    if (modal) modal.remove();
-                    showVerificationModal(email, username, password, code);
-                }
-            });
+            const submitBtn = document.getElementById('submitReg');
+            if (submitBtn) {
+                submitBtn.addEventListener('click', async function() {
+                    const username = document.getElementById('regUsername')?.value?.trim() || '';
+                    const email = document.getElementById('regEmail')?.value?.trim() || '';
+                    const password = document.getElementById('regPassword')?.value?.trim() || '';
+                    
+                    if (!username || !email || !password) {
+                        showToast('❌ Заполните все поля', 3000);
+                        return;
+                    }
+                    
+                    if (password.length < 6) {
+                        showToast('❌ Пароль должен быть минимум 6 символов', 3000);
+                        return;
+                    }
+                    
+                    if (!email.includes('@') || !email.includes('.')) {
+                        showToast('❌ Введите корректный email', 3000);
+                        return;
+                    }
+                    
+                    const code = await sendVerificationCodeToUser(email, username);
+                    
+                    if (code) {
+                        safeRemove('regModal');
+                        showVerificationModal(email, username, password, code);
+                    }
+                });
+            }
             
-            document.getElementById('switchToLogin').addEventListener('click', function() {
-                const modal = document.getElementById('regModal');
-                if (modal) modal.remove();
-                showLoginModal();
-            });
+            const switchBtn = document.getElementById('switchToLogin');
+            if (switchBtn) {
+                switchBtn.addEventListener('click', function() {
+                    safeRemove('regModal');
+                    showLoginModal();
+                });
+            }
         }
 
         function showLoginModal() {
+            safeRemove('loginModal');
+            
             const modalHTML = `
                 <div class="modal-overlay" id="loginModal">
                     <div class="modal-content">
@@ -2633,77 +2753,77 @@
             
             document.body.insertAdjacentHTML('beforeend', modalHTML);
             
-            document.getElementById('loginModal').addEventListener('click', function(e) {
-                if (e.target === this) this.remove();
-            });
+            const loginModal = document.getElementById('loginModal');
+            if (loginModal) {
+                loginModal.addEventListener('click', function(e) {
+                    if (e.target === this) safeRemove('loginModal');
+                });
+            }
             
-            document.getElementById('submitLogin').addEventListener('click', async function() {
-                const email = document.getElementById('loginEmail').value.trim();
-                const password = document.getElementById('loginPassword').value.trim();
-                
-                if (!email || !password) {
-                    showToast('❌ Заполните все поля', 3000);
-                    return;
-                }
-                
-                try {
-                    const result = await api.login(email, password);
-                    const modal = document.getElementById('loginModal');
-                    if (modal) modal.remove();
-                    showToast('✅ Добро пожаловать, ' + (result.user.nickname || result.user.username) + '!', 3000);
-                    navigateTo('main');
-                    return;
-                } catch (err) {
-                    console.warn('API недоступен, использую localStorage');
-                    const users = JSON.parse(localStorage.getItem('magicPedicUsers') || '[]');
-                    const user = users.find(function(u) { return u.email === email && u.password === password; });
+            const submitBtn = document.getElementById('submitLogin');
+            if (submitBtn) {
+                submitBtn.addEventListener('click', async function() {
+                    const email = document.getElementById('loginEmail')?.value?.trim() || '';
+                    const password = document.getElementById('loginPassword')?.value?.trim() || '';
                     
-                    if (user) {
-                        saveUserData({
-                            email: user.email,
-                            username: user.username,
-                            nickname: user.nickname || null,
-                            avatar: user.avatar || null,
-                            banner: user.banner || null,
-                            birthday: user.birthday || '',
-                            status: user.status || '',
-                            description: user.description || '',
-                            profileColor: user.profileColor || '#333333',
-                            lastNicknameChange: user.lastNicknameChange || null,
-                            loginTime: new Date().toISOString()
-                        });
-                        
-                        sendEmail(EMAILJS_CONFIG.template1ID, {
-                            type: 'Вход в аккаунт',
-                            username: user.username,
-                            email: user.email,
-                            details: 'Успешный вход',
-                            time: new Date().toLocaleString('ru-RU')
-                        });
-                        
-                        addNotification('👤 Вход', 'Вход в аккаунт: ' + (user.nickname || user.username));
-
-                        const modal = document.getElementById('loginModal');
-                        if (modal) modal.remove();
-                        showToast('✅ Добро пожаловать, ' + (user.nickname || user.username) + '!', 3000);
-                        navigateTo('main');
-                    } else {
-                        showToast('❌ Неверная почта или пароль', 3000);
+                    if (!email || !password) {
+                        showToast('❌ Заполните все поля', 3000);
+                        return;
                     }
-                }
-            });
+                    
+                    try {
+                        const result = await api.login(email, password);
+                        safeRemove('loginModal');
+                        showToast('✅ Добро пожаловать, ' + (result.user.nickname || result.user.username) + '!', 3000);
+                        navigateTo('main');
+                        return;
+                    } catch (err) {
+                        console.warn('API недоступен, использую localStorage');
+                        const users = JSON.parse(localStorage.getItem('magicPedicUsers') || '[]');
+                        const user = users.find(function(u) { return u.email === email && u.password === password; });
+                        
+                        if (user) {
+                            saveUserData({
+                                email: user.email,
+                                username: user.username,
+                                nickname: user.nickname || null,
+                                avatar: user.avatar || null,
+                                banner: user.banner || null,
+                                birthday: user.birthday || '',
+                                status: user.status || '',
+                                description: user.description || '',
+                                profileColor: user.profileColor || '#333333',
+                                lastNicknameChange: user.lastNicknameChange || null,
+                                loginTime: new Date().toISOString()
+                            });
+                            
+                            addNotification('👤 Вход', 'Вход в аккаунт: ' + (user.nickname || user.username));
+                            
+                            safeRemove('loginModal');
+                            showToast('✅ Добро пожаловать, ' + (user.nickname || user.username) + '!', 3000);
+                            navigateTo('main');
+                        } else {
+                            showToast('❌ Неверная почта или пароль', 3000);
+                        }
+                    }
+                });
+            }
             
-            document.getElementById('switchToReg').addEventListener('click', function() {
-                const modal = document.getElementById('loginModal');
-                if (modal) modal.remove();
-                showRegistrationModal();
-            });
+            const switchBtn = document.getElementById('switchToReg');
+            if (switchBtn) {
+                switchBtn.addEventListener('click', function() {
+                    safeRemove('loginModal');
+                    showRegistrationModal();
+                });
+            }
             
-            document.getElementById('forgotPasswordLink').addEventListener('click', function() {
-                const modal = document.getElementById('loginModal');
-                if (modal) modal.remove();
-                showForgotPasswordModal();
-            });
+            const forgotLink = document.getElementById('forgotPasswordLink');
+            if (forgotLink) {
+                forgotLink.addEventListener('click', function() {
+                    safeRemove('loginModal');
+                    showForgotPasswordModal();
+                });
+            }
         }
 
         async function showUsersPage() {
@@ -2761,6 +2881,8 @@
             
             if (!user) return;
             
+            safeRemove('userProfileModal');
+            
             const role = getUserRole(user);
             const displayName = user.nickname || user.username;
             
@@ -2792,7 +2914,7 @@
             modalHTML += '<div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:20px;">';
             
             if (currentUser && currentUser.email !== email) {
-                modalHTML += '<button class="friend-action-btn add-friend" onclick="addFriend(\'' + email + '\');document.getElementById(\'userProfileModal\').remove();"><i class="fas fa-user-plus"></i> Добавить в друзья</button>';
+                modalHTML += '<button class="friend-action-btn add-friend" onclick="addFriend(\'' + email + '\');safeRemove(\'userProfileModal\');"><i class="fas fa-user-plus"></i> Добавить в друзья</button>';
             }
             
             if (isOwner(currentUser)) {
@@ -2809,15 +2931,18 @@
                 }
             }
             
-            modalHTML += '<button class="modal-btn secondary" onclick="document.getElementById(\'userProfileModal\').remove()" style="flex:1;">Закрыть</button>';
+            modalHTML += '<button class="modal-btn secondary" onclick="safeRemove(\'userProfileModal\')" style="flex:1;">Закрыть</button>';
             modalHTML += '</div>';
             modalHTML += '</div></div>';
             
             document.body.insertAdjacentHTML('beforeend', modalHTML);
             
-            document.getElementById('userProfileModal').addEventListener('click', function(e) {
-                if (e.target === this) this.remove();
-            });
+            const userProfileModal = document.getElementById('userProfileModal');
+            if (userProfileModal) {
+                userProfileModal.addEventListener('click', function(e) {
+                    if (e.target === this) safeRemove('userProfileModal');
+                });
+            }
         }
 
         function promoteUser(email, newRole) {
@@ -2840,8 +2965,7 @@
                     saveUserData(currentUser);
                 }
                 
-                const profileModal = document.getElementById('userProfileModal');
-                if (profileModal) profileModal.remove();
+                safeRemove('userProfileModal');
                 
                 if (currentPage === 'users') {
                     navigateTo('users');
@@ -2978,46 +3102,34 @@
             const backFromAccount = document.getElementById('backToMainFromAccount');
             const backFromUsers = document.getElementById('backToMainFromUsers');
             const backFromFriends = document.getElementById('backToMainFromFriends');
-            
             if (backFromHell) backFromHell.addEventListener('click', function() { navigateTo('main'); });
             if (backFromHeaven) backFromHeaven.addEventListener('click', function() { navigateTo('main'); });
             if (backFromAbout) backFromAbout.addEventListener('click', function() { navigateTo('main'); });
             if (backFromAccount) backFromAccount.addEventListener('click', function() { navigateTo('main'); });
             if (backFromUsers) backFromUsers.addEventListener('click', function() { navigateTo('main'); });
             if (backFromFriends) backFromFriends.addEventListener('click', function() { navigateTo('main'); });
-
             const showLoginBtn = document.getElementById('showLoginBtn');
             if (showLoginBtn) showLoginBtn.addEventListener('click', function() { showLoginModal(); });
-
             const showRegBtn = document.getElementById('showRegBtn');
             if (showRegBtn) showRegBtn.addEventListener('click', function() { showRegistrationModal(); });
-
             const logoutBtn = document.getElementById('logoutBtn');
             if (logoutBtn) logoutBtn.addEventListener('click', function() { logoutUser(); });
-
             const editProfileBtn = document.getElementById('editProfileBtn');
             if (editProfileBtn) editProfileBtn.addEventListener('click', function() { showEditProfileModal(); });
-
             const homeLink = document.getElementById('homeLink');
             if (homeLink) homeLink.addEventListener('click', function() { navigateTo('main'); });
         }
-
         function navigateTo(page, updateHistory = true) {
             const protectedPages = ['hell', 'heaven', 'about', 'gallery', 'account', 'users', 'friends'];
-            
             if (protectedPages.includes(page) && !currentUser) {
                 showToast('🔒 Пожалуйста, войдите или зарегистрируйтесь для доступа', 4000);
-                
                 setTimeout(function() {
                     showLoginModal();
                 }, 500);
-                
                 page = 'main';
             }
-            
             currentPage = page;
             let htmlContent = '';
-            
             if (page === 'main') { htmlContent = renderMainPage(); document.title = 'Magic Pedic | Главная'; }
             else if (page === 'hell') { htmlContent = renderHellPage(); document.title = 'Свино-девочки ждут'; }
             else if (page === 'heaven') { htmlContent = renderHeavenPage(); document.title = 'Шоколадка баунти'; }
@@ -3040,7 +3152,6 @@
                 if (updateHistory) updateURL(page);
                 return;
             }
-            
             if (appContainer) {
                 appContainer.innerHTML = htmlContent;
                 if (updateHistory) {
@@ -3052,82 +3163,64 @@
                 }, 50);
             }
         }
-
         document.getElementById('footerAboutBtn').addEventListener('click', function() {
             navigateTo('about');
         });
-
         document.getElementById('galleryLink').addEventListener('click', function() {
             navigateTo('gallery');
         });
-
         document.getElementById('accountLink').addEventListener('click', function() {
             navigateTo('account');
         });
-
         document.getElementById('usersBtn').addEventListener('click', function() {
             navigateTo('users');
         });
-
         document.getElementById('friendsBtn').addEventListener('click', function() {
             navigateTo('friends');
         });
-
         document.getElementById('notificationsBtn').addEventListener('click', function() {
             showNotifications();
         });
-
         document.getElementById('themeToggle').addEventListener('click', function() {
             toggleTheme();
         });
-
         document.getElementById('playlistToggleBtn').addEventListener('click', function() {
             togglePlaylist();
         });
-
         document.querySelectorAll('.playlist-item').forEach(function(item, index) {
             item.addEventListener('click', function() {
                 switchTrack(index);
             });
         });
-
         document.addEventListener('click', function(e) {
             const notifPanel = document.getElementById('notificationPanel');
             const notifBtn = document.getElementById('notificationsBtn');
             const playlistPanel = document.getElementById('playlistPanel');
             const playlistBtn = document.getElementById('playlistToggleBtn');
-            
             if (notifPanel && notifPanel.style.display === 'block') {
                 if (!notifPanel.contains(e.target) && e.target !== notifBtn && !notifBtn.contains(e.target)) {
                     notifPanel.style.display = 'none';
                 }
             }
-            
             if (playlistPanel && playlistPanel.style.display === 'block') {
                 if (!playlistPanel.contains(e.target) && e.target !== playlistBtn && !playlistBtn.contains(e.target)) {
                     playlistPanel.style.display = 'none';
                 }
             }
         });
-
         function init() {
             currentUser = getUserData();
-            
             const savedToken = localStorage.getItem('auth_token');
             if (savedToken) {
                 api.setToken(savedToken);
             }
-            
             initTheme();
             updateFooterDate();
             updateNotificationBadge();
-            
             const pageFromURL = getPageFromURL();
             navigateTo(pageFromURL, false);
-            
             startPetals();
         }
-
         init();
     </script>
 </body>
