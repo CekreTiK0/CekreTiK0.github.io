@@ -2254,7 +2254,8 @@
             });
             
             document.getElementById('cancelVerify').addEventListener('click', function() {
-                document.getElementById('verifyModal').remove();
+                const modal = document.getElementById('verifyModal');
+                if (modal) modal.remove();
                 clearInterval(timerInterval);
                 showToast('Регистрация отменена', 2000);
             });
@@ -2292,7 +2293,8 @@
                     const result = await api.verifyCode(email, enteredCode);
                     if (result.valid) {
                         clearInterval(timerInterval);
-                        document.getElementById('verifyModal').remove();
+                        const modal = document.getElementById('verifyModal');
+                        if (modal) modal.remove();
                         
                         const users = JSON.parse(localStorage.getItem('magicPedicUsers') || '[]');
                         users.push({
@@ -2592,13 +2594,15 @@
                 const code = await sendVerificationCodeToUser(email, username);
                 
                 if (code) {
-                    document.getElementById('regModal').remove();
+                    const modal = document.getElementById('regModal');
+                    if (modal) modal.remove();
                     showVerificationModal(email, username, password, code);
                 }
             });
             
             document.getElementById('switchToLogin').addEventListener('click', function() {
-                document.getElementById('regModal').remove();
+                const modal = document.getElementById('regModal');
+                if (modal) modal.remove();
                 showLoginModal();
             });
         }
@@ -2644,7 +2648,8 @@
                 
                 try {
                     const result = await api.login(email, password);
-                    document.getElementById('loginModal').remove();
+                    const modal = document.getElementById('loginModal');
+                    if (modal) modal.remove();
                     showToast('✅ Добро пожаловать, ' + (result.user.nickname || result.user.username) + '!', 3000);
                     navigateTo('main');
                     return;
@@ -2677,8 +2682,9 @@
                         });
                         
                         addNotification('👤 Вход', 'Вход в аккаунт: ' + (user.nickname || user.username));
-                        
-                        document.getElementById('loginModal').remove();
+
+                        const modal = document.getElementById('loginModal');
+                        if (modal) modal.remove();
                         showToast('✅ Добро пожаловать, ' + (user.nickname || user.username) + '!', 3000);
                         navigateTo('main');
                     } else {
@@ -2688,12 +2694,14 @@
             });
             
             document.getElementById('switchToReg').addEventListener('click', function() {
-                document.getElementById('loginModal').remove();
+                const modal = document.getElementById('loginModal');
+                if (modal) modal.remove();
                 showRegistrationModal();
             });
             
             document.getElementById('forgotPasswordLink').addEventListener('click', function() {
-                document.getElementById('loginModal').remove();
+                const modal = document.getElementById('loginModal');
+                if (modal) modal.remove();
                 showForgotPasswordModal();
             });
         }
